@@ -25,4 +25,5 @@ public class Customer {
     private String city;
     private Instant createdAt;
     private Instant modifiedAt;
+    private String status;
 }

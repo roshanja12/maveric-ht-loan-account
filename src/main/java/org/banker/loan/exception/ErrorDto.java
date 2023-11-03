@@ -5,7 +5,6 @@ public class ErrorDto {
 	private int httpStatus;
 	private String errorMessgae;
 	private String errorCode;
-
 	public ErrorDto() {
 	}
 

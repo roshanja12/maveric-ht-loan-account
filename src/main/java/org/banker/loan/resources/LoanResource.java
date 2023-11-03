@@ -1,7 +1,6 @@
 package org.banker.loan.resources;
 
 import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
@@ -14,7 +13,6 @@ import org.banker.loan.exception.LoanIdNotFoundException;
 import org.banker.loan.exception.NoDataException;
 import org.banker.loan.models.LoanDto;
 import org.banker.loan.models.ResponseDto;
-import org.banker.loan.response.LoanResponse;
 import org.banker.loan.service.LoanServiceImp;
 import org.banker.loan.utils.ResponseGenerator;
 import org.eclipse.microprofile.openapi.annotations.OpenAPIDefinition;
@@ -27,8 +25,6 @@ import org.jboss.resteasy.reactive.PartType;
 import org.jboss.resteasy.reactive.RestForm;
 import org.jboss.resteasy.reactive.multipart.FileUpload;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 @Path("/api/v1/loan")
@@ -45,6 +41,23 @@ public class LoanResource {
 
     @Inject
     ResponseGenerator response;
+
+    @POST
+    @Consumes({MediaType.MULTIPART_FORM_DATA})
+    @Operation(summary = "Create Loan", description = "create a new loan")
+    @APIResponses(value = {
+            @APIResponse(responseCode = "200", description = "Creating a loan"),
+            @APIResponse(responseCode = "204", description = "No Content")
+    })
+    public Response createLoan(@RestForm("supportingDoc") FileUpload file,
+                               @RestForm @PartType(MediaType.APPLICATION_JSON) LoanDto loanDto,
+                               UriInfo uriInfo) {
+        LoanDto responseDetails=  loanService.createLoanService(file,loanDto);
+        ResponseDto responseSuccess= response.successResponseGenerator("Customer Loan Created",responseDetails,uriInfo);
+        return Response.status(Response.Status.ACCEPTED)
+                .entity(responseSuccess)
+                .build();
+    }
 
     @GET
     @Operation(summary = "Get all Loans", description = "Retrieve a list of all customer loans")

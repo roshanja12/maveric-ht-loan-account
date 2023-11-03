@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 @ApplicationScoped
 public class ResponseGenerator {
 
-
     public ResponseDto successResponseGenerator(String message, Object data, UriInfo uriInfo){
         ResponseDto responseDto = new ResponseDto();
         responseDto.setCode(200);
@@ -22,7 +21,6 @@ public class ResponseGenerator {
         responseDto.setErrors(null);
         return responseDto;
     }
-
     public ResponseDto errorResponseGenerator(int statusCode,String message, ErrorDto data, UriInfo uriInfo){
         ResponseDto responseDto = new ResponseDto();
         responseDto.setCode(statusCode);

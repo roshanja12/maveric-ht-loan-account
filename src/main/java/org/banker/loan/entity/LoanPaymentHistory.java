@@ -6,13 +6,12 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.banker.loan.enums.LoanPaymentStatus;
 
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
 @Data
-@Table(name = "loanpaymenthistorys")
+@Table(name = "Loan_payment_historys")
 public class LoanPaymentHistory {
 
     @Id
@@ -36,7 +35,7 @@ public class LoanPaymentHistory {
     @Column(name = "description", columnDefinition = "varchar(75)")
     private String description;
 
-    private LocalDateTime paidDateTime;
+    private LocalDateTime paidAt;
 
     public LoanPaymentHistory(long l, double v, double v1, LoanPaymentStatus loanPaymentStatus, String s, LocalDateTime now) {
     }
@@ -52,7 +51,7 @@ public class LoanPaymentHistory {
                 ", amountPaid=" + amountPaid +
                 ", paymentStatus=" + paymentStatus +
                 ", description=" + description +
-                ", paidDateTime=" + paidDateTime +
+                ", paidDateTime=" + paidAt +
                 '}';
     }
 }
