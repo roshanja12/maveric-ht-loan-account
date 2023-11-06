@@ -59,6 +59,10 @@ public class Loan {
     @OneToMany(mappedBy = "loanId",cascade= CascadeType.ALL, fetch = FetchType.LAZY)
     public List<LoanPaymentHistory> paymentHistory;
 
+    public Loan(long l, long l1, double bigDecimal, int emi, LoanStatus loanStatus, LocalDateTime now) {
+    }
+
+
     @Override
     public String toString() {
         return "Loan{" +
