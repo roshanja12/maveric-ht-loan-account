@@ -151,5 +151,30 @@ public class LoanServiceImp implements LoanService{
         return false;
     }
 
+    @Override
+    public List<Loan> getAllData(String name, int pageIndex, int pageSize) {
+        Page page = Page.of(pageIndex, pageSize);
+        List<Loan> list= loanRepository.getLoanIdByCreteria(name,page);
+        if(!list.isEmpty()){
+            list.sort(Collections.reverseOrder(Comparator.comparing(Loan::getCreatedAt)));
+            return  list;
+        }
+        else{
+            throw new LoanException("Data not found in DB");
+        }
+    }
+
+    @Override
+    public String statusUpdate(Long loanId, String status) {
+        Loan loan=  loanRepository.findById(loanId);
+        if(loan!=null){
+            loanRepository.updateLoanByIdAndStatus(loanId,status);
+            return "Updated status in DB";
+        }
+        else{
+            throw new LoanException("User not in database");
+        }
+    }
+
 
 }

@@ -1,5 +1,6 @@
 package org.banker.loan.service;
 
+import jakarta.ws.rs.QueryParam;
 import org.banker.loan.entity.Loan;
 import org.banker.loan.entity.LoanPaymentHistory;
 import org.banker.loan.enums.LoanStatus;
@@ -15,5 +16,7 @@ public interface LoanService {
    List<LoanPaymentHistory> viewLoanById(Long id, int pageIndex, int pageSize) throws LoanIdNotFoundException;
    Loan status(Long id,LoanStatus status) throws LoanIdNotFoundException;
    LoanDto createLoanService(FileUpload supportFile, LoanDto dto);
+   public List<Loan> getAllData(@QueryParam("searchBy") String name, @QueryParam("page") int page, @QueryParam("size") int size);
+   public String statusUpdate(Long loanId, String status);
 
 }

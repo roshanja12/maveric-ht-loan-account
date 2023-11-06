@@ -1,6 +1,7 @@
 package org.banker.loan.resources;
 
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
@@ -41,6 +42,8 @@ public class LoanResource {
 
     @Inject
     ResponseGenerator response;
+    @Inject
+    UriInfo uriInfo;
 
     @POST
     @Consumes({MediaType.MULTIPART_FORM_DATA})
@@ -107,6 +110,36 @@ public class LoanResource {
                 .build();
     }
 
+    @GET
+    @Path("/search")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(summary = "search", description = "Retrieve a data by name,id,email and number")
+    @APIResponses(value = {
+            @APIResponse(responseCode = "200", description = "Retrieve of list of loan"),
+            @APIResponse(responseCode = "204", description = "No Content"),
+            @APIResponse(responseCode = "500", description = "Internal Server Error")
+    })
+    public ResponseDto search(
+            @QueryParam("searchValue") String searchValue, @QueryParam("page") int page, @QueryParam("size") int size) {
+        List<Loan> list = loanService.getAllData(searchValue, page, size);
+        return response.successResponseGenerator("Get Loan Details",list,uriInfo);
+    }
+
+    @PUT
+    @Transactional
+    @Path("/{loanId}/{status}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(summary = "updating the status", description = "Updating the status of the loans")
+    @APIResponses(value = {
+            @APIResponse(responseCode = "200", description = "updating loan status"),
+            @APIResponse(responseCode = "204", description = "No Content"),
+            @APIResponse(responseCode = "500", description = "Internal Server Error")
+    })
+    public ResponseDto statusUpdate(@PathParam("loanId") Long loanId,@PathParam("status") String status) {
+        String message=loanService.statusUpdate(loanId, status);
+        return response.successResponseGenerator("Updated status in db",null,uriInfo);
+    }
 
 
 }

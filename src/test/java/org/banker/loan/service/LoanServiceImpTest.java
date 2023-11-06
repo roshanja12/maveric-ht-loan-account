@@ -5,6 +5,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import org.banker.loan.entity.Loan;
 import org.banker.loan.entity.LoanPaymentHistory;
 import org.banker.loan.enums.LoanStatus;
+import org.banker.loan.exception.LoanException;
 import org.banker.loan.exception.LoanIdNotFoundException;
 import org.banker.loan.exception.NoDataException;
 import org.junit.jupiter.api.Assertions;
@@ -15,8 +16,8 @@ import java.util.List;
 import static org.banker.loan.enums.LoanPaymentStatus.RECEIVED;
 import static org.banker.loan.enums.LoanStatus.APPLIED;
 import static org.banker.loan.enums.LoanStatus.APPROVED;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 
@@ -51,4 +52,33 @@ public class LoanServiceImpTest {
         Loan result = loanService.status(loanId,status);
         Assertions.assertEquals(LoanStatus.WITHDRAW, result.getStatus());
     }
+
+    @Test
+    public void shouldGetByCreteria() {
+        String searchValue = "mark";
+        int page=0;
+        int pageSize=2;
+        List<Loan> expectedResults = List.of(new Loan(1L, 1L, 2L, null, 12, "Anil", "anil@gamail.com", 1233333L, APPROVED, LocalDateTime.now(), null, null));
+        when(loanService.getAllData(anyString(), anyInt(), anyInt())).thenReturn(expectedResults);
+        List<Loan> actualLoans=loanService.getAllData(searchValue,page,pageSize);
+        Assertions.assertNotNull(actualLoans);
+    }
+
+    @Test
+    public void testStatusUpdateSuccess() {
+        Long loanId = 1L;
+        String status = "UpdatedStatus";
+        Loan mockLoan = new Loan();
+        when(loanService.statusUpdate(loanId,status)).thenReturn("Updated status in DB");
+        String result = loanService.statusUpdate(loanId, status);
+        assertEquals("Updated status in DB", result);
+    }
+
+    @Test
+    public void testStatusUpdateNotFound() {
+        Long loanId = 2L;
+        String status = "UpdatedStatus";
+        when(loanService.statusUpdate(loanId,status)).thenReturn(null).thenThrow(LoanException.class);
+    }
+
 }
