@@ -113,6 +113,7 @@ public class LoanServiceImp implements LoanService{
                 loanMapper.setLoanSupportingDocument(supDoc);
                 supDoc.setLoan(loanMapper);
                 loanRepository.persist(loanMapper);
+                dto.setLoanId(loanMapper.getLoanId());
                 return dto;
             }
             return new LoanDto();
