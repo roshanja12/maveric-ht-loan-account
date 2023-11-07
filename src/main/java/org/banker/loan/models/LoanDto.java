@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import org.banker.loan.enums.LoanStatus;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
@@ -35,6 +36,8 @@ public class LoanDto {
     @Schema(required = true,type = SchemaType.NUMBER)
     @Min(value = 2,message ="Greater than 2 months" )
     private int emi;
+
+    private LoanStatus status;
 
     File file;
 

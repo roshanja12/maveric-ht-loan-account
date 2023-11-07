@@ -18,10 +18,13 @@ public interface AccountProxyLayer {
     @ClientExceptionMapper
     static RuntimeException toException(Response response) {
         if (response.getStatus() == 500) {
-            return new ServiceException("The remote service responded with HTTP 500");
+            return new ServiceException(ErrorCodes.CONNECTION_ISSUE);
         }
         if (response.getStatus() == 404) {
-            return new ServiceException(ErrorCodes.INACTIVE_SAVINGS_ACCOUNT);
+            return new ServiceException(ErrorCodes.NO_SAVINGS_ACCOUNT_FOUND);
+        }
+        if (response.getStatus() == 400) {
+            return new ServiceException(ErrorCodes.NO_SAVINGS_ACCOUNT_FOUND);
         }
         return null;
     }

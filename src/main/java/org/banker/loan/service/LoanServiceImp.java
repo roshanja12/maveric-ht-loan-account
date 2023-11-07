@@ -21,7 +21,6 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.reactive.multipart.FileUpload;
 import org.modelmapper.ModelMapper;
-
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Comparator;
@@ -105,18 +104,18 @@ public class LoanServiceImp implements LoanService{
             ModelMapper modelMapper = new ModelMapper();
             Loan loanMapper = modelMapper.map(dto, Loan.class);
             if (isActiveSavingAccount(dto.getSavingsAccount()) && isActiveCustomer(dto.getCustomerId(), loanMapper)) {
-                loanMapper.setStatus(LoanStatus.APPROVED);
+                dto.setStatus(LoanStatus.APPROVED);
+                loanMapper.setStatus(dto.getStatus());
                 loanMapper.setCreatedAt(LocalDateTime.now());
+                loanMapper.setLastUpdateAt(LocalDateTime.now());
                 LoanSupportingDocument supDoc = commonUtils.savingLoanSupportingDocmentDetails(supportFile);
                 supDoc.setUploadedDateTime(loanMapper.getCreatedAt());
                 loanMapper.setLoanSupportingDocument(supDoc);
                 supDoc.setLoan(loanMapper);
                 loanRepository.persist(loanMapper);
                 return dto;
-            } else {
-                log.error(ErrorCodes.INACTIVE_SAVINGS_ACCOUNT +"for creating loan");
-                throw new ServiceException(ErrorCodes.INACTIVE_SAVINGS_ACCOUNT);
             }
+            return new LoanDto();
         }catch (PersistenceException e){
             log.error("Error: ",e.getStackTrace());
             throw new SQLCustomExceptions(ErrorCodes.CONNECTION_ISSUE);
@@ -136,7 +135,7 @@ public class LoanServiceImp implements LoanService{
             return true;
         } else{
             log.warn("Inactive customer for Creating loan called|"+customerId);
-            return false;
+            throw new ServiceException(ErrorCodes.INACTIVE_CUSTOMER);
         }
     }
     public boolean isActiveSavingAccount(Long savingsAccountId) {
@@ -148,7 +147,7 @@ public class LoanServiceImp implements LoanService{
         if (account.getStatus().equals("ACTIVE"))
             return true;
         log.warn("Inactive savings account for Creating loan called|"+savingsAccountId);
-        return false;
+        throw new ServiceException(ErrorCodes.INACTIVE_SAVINGS_ACCOUNT);
     }
 
 

@@ -18,10 +18,10 @@ public interface CustomerProxyLayer {
     @ClientExceptionMapper
     static RuntimeException toException(Response response) {
         if (response.getStatus() == 500) {
-            return new ServiceException("The remote service responded with HTTP 500");
+            return new ServiceException(ErrorCodes.CONNECTION_ISSUE);
         }
         if (response.getStatus() == 404) {
-            return new ServiceException(ErrorCodes.INACTIVE_CUSTOMER);
+            return new ServiceException(ErrorCodes.NO_CUSTOMER_FOUND);
         }
         return null;
     }
