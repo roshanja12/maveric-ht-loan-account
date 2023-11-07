@@ -53,6 +53,9 @@ public class Loan {
     @NotNull
     private LocalDateTime createdAt;
 
+    @NotNull
+    private LocalDateTime lastUpdateAt;
+
     @OneToOne   (mappedBy = "loan",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     private LoanSupportingDocument loanSupportingDocument;
 

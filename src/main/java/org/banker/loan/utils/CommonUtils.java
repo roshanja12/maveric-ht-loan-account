@@ -38,4 +38,6 @@ public class CommonUtils {
             throw new ServiceException(ErrorCodes.CONNECTION_ISSUE);
         }
     }
+
+
 }

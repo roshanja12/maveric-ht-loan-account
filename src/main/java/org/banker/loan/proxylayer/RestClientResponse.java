@@ -10,7 +10,7 @@ public class RestClientResponse {
     private String status;
     private String msg;
     private int code;
-    private ErrorDto errors;
+    private ErrorDto errors [];
     private Object data;
     private String path;
     private LocalDateTime timestamp;
