@@ -85,7 +85,7 @@ public class LoanServiceImp implements LoanService{
                 throw new LoanIdNotFoundException(ErrorCodes.PAGE_NOT_FOUND);
             }
         } catch (Exception exception) {
-            throw new SQLCustomExceptions(ErrorCodes.CONNECTION_ISSUE);
+            throw new SQLCustomExceptions("No data found ");
         }
     }
 

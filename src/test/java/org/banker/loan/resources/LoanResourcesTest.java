@@ -31,6 +31,7 @@ import java.util.List;
 import static io.restassured.RestAssured.given;
 import static io.restassured.config.EncoderConfig.encoderConfig;
 import static org.banker.loan.enums.LoanStatus.APPROVED;
+import static org.banker.loan.enums.LoanStatus.REJECTED;
 import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.mock;
@@ -87,6 +88,7 @@ public class LoanResourcesTest {
     public void status(){
         Long loanId = 1L;
         io.restassured.response.Response response = given()
+                .queryParam("status", REJECTED)
                 .put("/api/v1/loan/status/{id}", loanId)
                 .then()
                 .statusCode(200)
