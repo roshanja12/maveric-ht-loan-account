@@ -1,5 +1,9 @@
 package org.banker.loan.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.json.bind.annotation.JsonbProperty;
+import jakarta.json.bind.annotation.JsonbTransient;
 import lombok.Data;
 import org.banker.loan.exception.ErrorDto;
 

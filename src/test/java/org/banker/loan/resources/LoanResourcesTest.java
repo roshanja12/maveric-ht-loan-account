@@ -5,11 +5,15 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
+import jakarta.inject.Inject;
 import org.banker.loan.entity.Loan;
 import org.banker.loan.enums.LoanStatus;
+import org.banker.loan.exception.LoanException;
 import org.banker.loan.exception.NoDataException;
 import org.banker.loan.models.LoanDto;
+import org.banker.loan.models.ResponseDto;
 import org.banker.loan.proxylayer.RestClientResponse;
+import org.banker.loan.repository.LoanRepository;
 import org.banker.loan.service.LoanService;
 import org.jboss.resteasy.reactive.multipart.FileUpload;
 import org.junit.jupiter.api.Assertions;
@@ -20,6 +24,7 @@ import org.mockito.Mockito;
 import java.io.File;
 import java.net.URL;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -27,6 +32,7 @@ import static io.restassured.RestAssured.given;
 import static io.restassured.config.EncoderConfig.encoderConfig;
 import static org.banker.loan.enums.LoanStatus.APPROVED;
 import static org.hamcrest.Matchers.equalToIgnoringCase;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -35,6 +41,10 @@ public class LoanResourcesTest {
 
     @InjectMock
     LoanService loanService;
+    @InjectMock
+    LoanRepository loanRepository;
+    @Inject
+    LoanResource loanResource;
 
     @BeforeEach
     public void setup() throws NoDataException {
@@ -102,6 +112,7 @@ public class LoanResourcesTest {
                 "    \"loanAmount\":199,\n" +
                 "    \"emi\":6\n" +
                 "}";
+
        given()
                 .multiPart("supportingDoc", file1)
                 .formParam("loanDto",dto)
@@ -111,4 +122,47 @@ public class LoanResourcesTest {
                 .statusCode(202)
                 .body("msg",equalToIgnoringCase("Customer Loan Created"));
     }
+
+    @Test
+    public void testGetLoanByCriteria_Success() {
+        String searchValue = "email";
+        int page=0;
+        int pageSize=2;
+        List<Loan> loans = new ArrayList<>();
+        loans.add(new Loan());
+        when(loanService.getAllData(searchValue,page,pageSize)).thenReturn(loans);
+
+        ResponseDto response= loanResource.search(searchValue,page,pageSize);
+        assertNotNull(response);
+
+    }
+    @Test
+    public void testGetLoanByCriteria_Failure()  throws LoanException {
+        String searchValue = "mark";
+        int page=0;
+        int pageSize=2;
+        List<Loan> loans = new ArrayList<>();
+        when(loanService.getAllData(searchValue,page,pageSize)).thenReturn(loans).thenThrow(LoanException.class);
+    }
+
+
+    @Test
+    public void testStatusUpdate_Success() {
+        Long loanId=1L;
+        String status="APPROVED";
+        List<Loan> loans = new ArrayList<>();
+        loans.add(new Loan());
+        when(loanService.statusUpdate(loanId,status)).thenReturn("Updated status in DB");
+        ResponseDto message=loanResource.statusUpdate(loanId,status);
+        assertNotNull(message.getMsg());
+    }
+
+    @Test
+    public void testStatusUpdate_Failure() throws LoanException {
+        Long loanId=1L;
+        String status="APPROVED";
+        when(loanRepository.findById(loanId)).thenReturn(null);
+        when(loanService.statusUpdate(loanId,status)).thenReturn("Data not found in DB").thenThrow(LoanException.class);
+    }
+
 }
