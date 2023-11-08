@@ -2,6 +2,7 @@ package org.banker.loan.resources;
 
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
@@ -14,11 +15,13 @@ import org.banker.loan.exception.LoanIdNotFoundException;
 import org.banker.loan.exception.NoDataException;
 import org.banker.loan.models.LoanDto;
 import org.banker.loan.models.ResponseDto;
+import org.banker.loan.models.TransactionRequestDto;
 import org.banker.loan.service.LoanServiceImp;
 import org.banker.loan.utils.ResponseGenerator;
 import org.eclipse.microprofile.openapi.annotations.OpenAPIDefinition;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.info.Info;
+import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.jboss.logging.Logger;
@@ -120,7 +123,7 @@ public class LoanResource {
             @APIResponse(responseCode = "204", description = "No Content"),
             @APIResponse(responseCode = "500", description = "Internal Server Error")
     })
-    public ResponseDto search(
+    public ResponseDto search( @Valid
             @QueryParam("searchValue") String searchValue, @QueryParam("page") int page, @QueryParam("size") int size) {
         List<Loan> list = loanService.getAllData(searchValue, page, size);
         return response.successResponseGenerator("Get Loan Details",list,uriInfo);
@@ -136,9 +139,28 @@ public class LoanResource {
             @APIResponse(responseCode = "204", description = "No Content"),
             @APIResponse(responseCode = "500", description = "Internal Server Error")
     })
-    public ResponseDto statusUpdate(@PathParam("loanId") Long loanId,@PathParam("status") String status) {
+    public ResponseDto statusUpdate(@Valid @PathParam("loanId") Long loanId, @PathParam("status") String status) {
         String message=loanService.statusUpdate(loanId, status);
         return response.successResponseGenerator("Updated status in db",null,uriInfo);
+    }
+
+
+    @POST
+    @Transactional
+    @Path("/withdraw")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(summary = "Posting the status in history", description = "Posting the status of the payment history")
+    @APIResponses(value = {
+            @APIResponse(responseCode = "200", description = "Posting payment history status"),
+            @APIResponse(responseCode = "204", description = "No Content"),
+            @APIResponse(responseCode = "500", description = "Internal Server Error")
+    })
+    public Response history(@Valid @RequestBody TransactionRequestDto requestDto) {
+        String loanPaymentHistory=loanService.historyStatus(requestDto);
+        ResponseDto responseSuccess= response.successResponseGenerator("LoanHistory Created",loanPaymentHistory,uriInfo);
+        return Response.status(Response.Status.ACCEPTED)
+                .entity(responseSuccess)
+                .build();
     }
 
 

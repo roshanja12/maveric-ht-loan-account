@@ -26,6 +26,8 @@ public class LoanServiceImpTest {
     @InjectMock
     LoanService loanService;
 
+
+
     @Test
     public void shouldGetAllLoans() throws NoDataException {
         List<Loan> loans = List.of(new Loan(1L, 1L, 10000.00, 12, APPROVED, LocalDateTime.now()));

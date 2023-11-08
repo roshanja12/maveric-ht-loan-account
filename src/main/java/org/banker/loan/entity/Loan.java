@@ -1,6 +1,7 @@
 package org.banker.loan.entity;
 
 
+import jakarta.json.bind.annotation.JsonbTransient;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -54,9 +55,11 @@ public class Loan {
     private LocalDateTime createdAt;
 
     @OneToOne   (mappedBy = "loan",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @JsonbTransient
     private LoanSupportingDocument loanSupportingDocument;
 
     @OneToMany(mappedBy = "loanId",cascade= CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonbTransient
     public List<LoanPaymentHistory> paymentHistory;
 
     public Loan(long l, long l1, double bigDecimal, int emi, LoanStatus loanStatus, LocalDateTime now) {

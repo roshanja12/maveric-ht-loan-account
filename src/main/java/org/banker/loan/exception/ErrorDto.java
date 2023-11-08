@@ -2,23 +2,23 @@ package org.banker.loan.exception;
 
 public class ErrorDto {
 
-	private int httpStatus;
+	private String httpStatus;
 	private String errorMessgae;
 	private String errorCode;
 	public ErrorDto() {
 	}
 
-	public ErrorDto(int httpStatus, String errorMessgae, String errorCode) {
+	public ErrorDto(String httpStatus, String errorMessgae, String errorCode) {
 		this.httpStatus = httpStatus;
 		this.errorMessgae = errorMessgae;
 		this.errorCode = errorCode;
 	}
 
-	public int getHttpStatus() {
+	public String getHttpStatus() {
 		return httpStatus;
 	}
 
-	public void setHttpStatus(int httpStatus) {
+	public void setHttpStatus(String httpStatus) {
 		this.httpStatus = httpStatus;
 	}
 
