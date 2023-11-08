@@ -112,7 +112,8 @@ public class LoanResourcesTest {
                 "    \"loanAmount\":199,\n" +
                 "    \"emi\":6\n" +
                 "}";
-        given()
+
+       given()
                 .multiPart("supportingDoc", file1)
                 .formParam("loanDto",dto)
                 .when()
@@ -163,4 +164,5 @@ public class LoanResourcesTest {
         when(loanRepository.findById(loanId)).thenReturn(null);
         when(loanService.statusUpdate(loanId,status)).thenReturn("Data not found in DB").thenThrow(LoanException.class);
     }
+
 }
