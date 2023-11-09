@@ -65,7 +65,7 @@ public class LoanServiceImp implements LoanService{
                 return loans;
             }
             else{
-                throw new NoDataException(ErrorCodes.PAGE_NOT_FOUND);
+                throw new NoDataException(ErrorCodes.LOANS_NOT_FOUND);
            }
         }catch (Exception exception){
            throw new SQLCustomExceptions("No data found ");
