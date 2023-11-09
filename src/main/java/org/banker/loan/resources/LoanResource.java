@@ -17,6 +17,7 @@ import org.banker.loan.models.LoanDto;
 import org.banker.loan.models.ResponseDto;
 import org.banker.loan.models.TransactionRequestDto;
 import org.banker.loan.service.LoanServiceImp;
+import org.banker.loan.service.MessagingService;
 import org.banker.loan.utils.ResponseGenerator;
 import org.eclipse.microprofile.openapi.annotations.OpenAPIDefinition;
 import org.eclipse.microprofile.openapi.annotations.Operation;
@@ -48,6 +49,9 @@ public class LoanResource {
     @Inject
     UriInfo uriInfo;
 
+    @Inject
+    MessagingService messagingService;
+
     @POST
     @Consumes({MediaType.MULTIPART_FORM_DATA})
     @Operation(summary = "Create Loan", description = "create a new loan")
@@ -60,6 +64,7 @@ public class LoanResource {
                                UriInfo uriInfo) {
         LoanDto responseDetails=  loanService.createLoanService(file,loanDto);
         ResponseDto responseSuccess= response.successResponseGenerator("Customer Loan Created",responseDetails,uriInfo);
+        messagingService.loanProducerCustom(responseDetails);
         return Response.status(Response.Status.ACCEPTED)
                 .entity(responseSuccess)
                 .build();

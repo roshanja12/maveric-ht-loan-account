@@ -6,7 +6,9 @@ import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.UriInfo;
 import org.banker.loan.entity.Loan;
 import org.banker.loan.enums.LoanStatus;
 import org.banker.loan.exception.LoanException;
@@ -17,6 +19,7 @@ import org.banker.loan.models.TransactionRequestDto;
 import org.banker.loan.proxylayer.RestClientResponse;
 import org.banker.loan.repository.LoanRepository;
 import org.banker.loan.service.LoanService;
+import org.banker.loan.utils.ResponseGenerator;
 import org.jboss.resteasy.reactive.multipart.FileUpload;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,6 +53,9 @@ public class LoanResourcesTest {
     LoanRepository loanRepository;
     @Inject
     LoanResource loanResource;
+
+    @Context
+    UriInfo info;
 
     @BeforeEach
     public void setup() throws NoDataException {
@@ -131,15 +137,28 @@ public class LoanResourcesTest {
 
     @Test
     public void testGetLoanByCriteria_Success() {
-        String searchValue = "email";
+        List<Loan> loans = new ArrayList<>();
+        loans.add(new Loan());
+        when(loanService.getAllData("10",1, 10)).thenReturn(loans);
+                 given()
+                .queryParam("searchValue", 10)
+                .queryParam("page", 1)
+                .queryParam("size", 10)
+                .when()
+                .get("/api/v1/loan/search")
+                .then()
+                .statusCode(200)
+                .body("msg",equalToIgnoringCase("Get Loan Details"));
+        //Assertions.assertEquals(200, response.statusCode());
+
+        /*String searchValue = "email";
         int page=0;
         int pageSize=2;
         List<Loan> loans = new ArrayList<>();
         loans.add(new Loan());
         when(loanService.getAllData(searchValue,page,pageSize)).thenReturn(loans);
-
         ResponseDto response= loanResource.search(searchValue,page,pageSize);
-        assertNotNull(response);
+        assertNotNull(response);*/
 
     }
     @Test
@@ -154,13 +173,26 @@ public class LoanResourcesTest {
 
     @Test
     public void testStatusUpdate_Success() {
-        Long loanId=1L;
         String status="APPROVED";
+        Long loanId=1L;
         List<Loan> loans = new ArrayList<>();
         loans.add(new Loan());
         when(loanService.statusUpdate(loanId,status)).thenReturn("Updated status in DB");
+        given()
+                .queryParam("status", REJECTED)
+                .put("/api/v1/loan/{id}/{status}", loanId,status)
+                .then()
+                .statusCode(200);
+
+       /* List<Loan> loans = new ArrayList<>();
+        loans.add(new Loan());
+        ResponseGenerator generator = new ResponseGenerator();
+        ResponseDto dto = mock(ResponseDto.class);
+        System.out.println("---> "+info);
+        when(generator.successResponseGenerator("Updated status in DB",null,info)).thenReturn(dto);
+        when(loanService.statusUpdate(loanId,status)).thenReturn("Updated status in DB");
         ResponseDto message=loanResource.statusUpdate(loanId,status);
-        assertNotNull(message.getMsg());
+        assertNotNull(message.getMsg());*/
     }
 
     @Test

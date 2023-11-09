@@ -1,5 +1,5 @@
 package org.banker.loan.enums;
 
 public enum Action {
-    WITHDRAW,DEPOSIT;
+    WITHDRAW,DEPOSIT,CREATE,UPDATED
 }
