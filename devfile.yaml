@@ -1,13 +1,13 @@
 schemaVersion: 2.2.0
 metadata:
-  name: saving-service
+  name: loan-service
   version: 1.0.0
   provider: Maveric
   supportUrl: https://github.com/devfile-samples/devfile-support#support-information
   icon: https://design.jboss.org/quarkus/logo/final/SVG/quarkus_icon_rgb_default.svg
   website: https://quarkus.io
-  displayName: Customer App
-  description: App used by bankers to manage customers
+  displayName: Loan Service App
+  description: App used by bankers to manage loan
   tags:
     - Java
     - Quarkus
