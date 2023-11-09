@@ -18,28 +18,19 @@ import java.util.Map;
 @Provider
 public class LoanExceptionMapper implements ExceptionMapper<LoanException> {
     @Inject
-    ResponseGenerator responseGenerator;
+    ResponseGenerator response;
     @Context
     private UriInfo uriInfoo;
     @Override
     public Response toResponse(LoanException exception) {
         ErrorDto errors = new ErrorDto();
-        Map<String, Object> response = new HashMap<>();
-        response.put("status", "Failed");
-        response.put("code", Response.Status.NOT_FOUND.getStatusCode());
-        response.put("msg", "Data not found");
-        response.put("errors",exception.getMessage());
-        response.put("data", null);
-        response.put("path", "/bankersApp/v1/loan");
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-        String timestamp = dateFormat.format(new Date());
-        response.put("timestamp", timestamp);
         errors.setErrorMessgae(exception.getMessage());
         errors.setErrorCode("404");
-        ResponseDto responseDto= responseGenerator.errorResponseGenerator(404,"Data not found",errors,uriInfoo);
-        return Response.status(Response.Status.NOT_FOUND)
-                .entity(response)
-                .type(MediaType.APPLICATION_JSON)
+        ResponseDto responseDto= response.errorResponseGenerator(404,exception.getMessage(),errors,uriInfoo);
+
+        return  Response.status(Response.Status.NOT_FOUND)
+                .entity(responseDto)
+                .status(404)
                 .build();
     }
 }

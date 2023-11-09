@@ -4,20 +4,29 @@ import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Page;
 import io.quarkus.panache.common.Sort;
 import io.quarkus.test.InjectMock;
+import io.quarkus.test.Mock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.banker.loan.entity.Loan;
 import org.banker.loan.entity.LoanPaymentHistory;
 import org.banker.loan.enums.LoanStatus;
+import org.banker.loan.exception.AmountNotAvailableException;
 import org.banker.loan.exception.LoanException;
 import org.banker.loan.exception.LoanIdNotFoundException;
 import org.banker.loan.exception.NoDataException;
+import org.banker.loan.models.TransactionRequestDto;
+import org.banker.loan.proxylayer.AccountProxyLayer;
+import org.banker.loan.proxylayer.SavingsProxyLayer;
+import org.banker.loan.repository.LoanRepository;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.wildfly.common.Assert;
 import org.banker.loan.repository.LoanHistoryRepository;
 import org.banker.loan.repository.LoanRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -25,8 +34,7 @@ import java.util.List;
 import static org.banker.loan.enums.LoanPaymentStatus.RECEIVED;
 import static org.banker.loan.enums.LoanStatus.APPLIED;
 import static org.banker.loan.enums.LoanStatus.APPROVED;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
@@ -34,11 +42,12 @@ import static org.mockito.Mockito.when;
 @QuarkusTest
 public class LoanServiceImpTest {
     @Inject
-    LoanServiceImp loanService;
-
+    LoanService loanService;
     @InjectMock
     LoanRepository loanRepository;
-
+    @InjectMock
+    @RestClient
+    SavingsProxyLayer savingsProxyLayer;
     @InjectMock
     LoanHistoryRepository historyRepository;
 
@@ -72,6 +81,18 @@ public class LoanServiceImpTest {
             Assertions.assertEquals(status.getStatus(),APPROVED);
         });
     }
+
+    @Test
+    public void shouldGetByCreteria() {
+        String searchValue = "mark";
+        int page=0;
+        int pageSize=2;
+        List<Loan> expectedResults = List.of(new Loan(1L, 1L, 10000.00, 12, APPROVED, LocalDateTime.now()));
+        when(loanService.getAllData(anyString(), anyInt(), anyInt())).thenReturn(expectedResults);
+        List<Loan> actualLoans=loanService.getAllData(searchValue,page,pageSize);
+        Assertions.assertNotNull(actualLoans);
+    }
+
     @Test
     public void testStatusUpdateSuccess() {
         Long loanId = 1L;
@@ -87,6 +108,29 @@ public class LoanServiceImpTest {
         Long loanId = 2L;
         String status = "UpdatedStatus";
         when(loanService.statusUpdate(loanId,status)).thenReturn(null).thenThrow(LoanException.class);
+    }
+
+
+    public void testHistoryStatusSuccess() {
+        Loan loan = new Loan(1L, 1L, 10000.00, 12, APPLIED, LocalDateTime.now());
+        TransactionRequestDto requestDto = new TransactionRequestDto();
+        requestDto.setAccountId(1L);
+        requestDto.setAmount(BigDecimal.valueOf(22.00));
+        when(loanRepository.findById(requestDto.getAccountId())).thenReturn(loan);
+        when(savingsProxyLayer.getTransactionHistories(requestDto)).thenReturn(true);
+        String result = loanService.historyStatus(requestDto);
+        assertTrue(result.startsWith("Successfully transcation done with payementId:"));
+    }
+
+    @Test
+    public void testHistoryStatus_Failure() {
+        TransactionRequestDto requestDto = new TransactionRequestDto();
+        requestDto.setAccountId(1L);
+        requestDto.setAmount(BigDecimal.valueOf(22.00));
+        when(savingsProxyLayer.getTransactionHistories(requestDto)).thenReturn(false);
+        assertThrows(AmountNotAvailableException.class, () -> {
+            loanService.historyStatus(requestDto);
+        });
     }
 
 }

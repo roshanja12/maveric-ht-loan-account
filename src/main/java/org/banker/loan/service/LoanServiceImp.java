@@ -82,7 +82,7 @@ public class LoanServiceImp implements LoanService{
                 history.sort(Collections.reverseOrder(Comparator.comparing(LoanPaymentHistory::getPaidAt)));
                 return history;
             } else {
-                throw new LoanIdNotFoundException(ErrorCodes.PAGE_NOT_FOUND);
+                throw new LoanIdNotFoundException(ErrorCodes.PAYMENT_HISTORY_NOT_FOUND);
             }
         } catch (Exception exception) {
             throw new SQLCustomExceptions("No data found ");
@@ -198,7 +198,6 @@ public class LoanServiceImp implements LoanService{
             loanPaymentHistory.setAmountPaid(transactionRequestDto.getAmount());
             loanPaymentHistory.setBalance(amountDetect(loan,transactionRequestDto));
             loanPaymentHistory.setPaidAt(LocalDateTime.now());
-            System.out.println(loanPaymentHistory.toString());
             historyRepository.persist(loanPaymentHistory);
             return "Successfully transcation done with payementId:"+loanPaymentHistory.getPaymentId();
         }
@@ -214,7 +213,6 @@ if(loan1!=null){
    if(loan1.getLoanAmount().compareTo(BigDecimal.ZERO) > 0 && loan1.getLoanAmount().compareTo(transactionRequestDto.getAmount())> 0 ){
        result= loan1.getLoanAmount().subtract(transactionRequestDto.getAmount());
        loan1.setLoanAmount(result);
-       System.out.println(loan1.toString());
        loanRepository.persist(loan1);
        return result;
    }
