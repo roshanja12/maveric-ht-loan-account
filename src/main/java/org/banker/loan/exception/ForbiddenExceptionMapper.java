@@ -12,7 +12,6 @@ public class ForbiddenExceptionMapper implements ExceptionMapper<ForbiddenExcept
         ErrorDto errors = new ErrorDto();
         String errorMessage = "";
         exception.printStackTrace();
-        System.out.println("--------------!!!!!!!!!!!!!!");
         errors.setErrorMessgae("Unauthorized Access Type");
         errors.setErrorCode("403");
         return Response.status(Integer.parseInt(errors.getErrorCode())).entity(errors).build();

@@ -6,12 +6,14 @@ import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.core.MediaType;
 import org.banker.loan.entity.Loan;
 import org.banker.loan.enums.LoanStatus;
 import org.banker.loan.exception.LoanException;
 import org.banker.loan.exception.NoDataException;
 import org.banker.loan.models.LoanDto;
 import org.banker.loan.models.ResponseDto;
+import org.banker.loan.models.TransactionRequestDto;
 import org.banker.loan.proxylayer.RestClientResponse;
 import org.banker.loan.repository.LoanRepository;
 import org.banker.loan.service.LoanService;
@@ -22,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.File;
+import java.math.BigDecimal;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -31,6 +34,7 @@ import java.util.List;
 import static io.restassured.RestAssured.given;
 import static io.restassured.config.EncoderConfig.encoderConfig;
 import static org.banker.loan.enums.LoanStatus.APPROVED;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.mock;
@@ -163,6 +167,24 @@ public class LoanResourcesTest {
         String status="APPROVED";
         when(loanRepository.findById(loanId)).thenReturn(null);
         when(loanService.statusUpdate(loanId,status)).thenReturn("Data not found in DB").thenThrow(LoanException.class);
+    }
+
+    @Test
+    public void testHistoryEndpoint() {
+        TransactionRequestDto requestDto = new TransactionRequestDto();
+        requestDto.setAccountId(1L);
+        requestDto.setAmount(BigDecimal.valueOf(2223.00));
+        Response response = given()
+                .contentType(ContentType.JSON)
+                .body(requestDto)
+                .when()
+                .post("api/v1/loan/withdraw")
+                .then()
+                .statusCode(202)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body("code", equalTo(200))
+                .extract()
+                .response();
     }
 
 }
