@@ -60,15 +60,15 @@ public class LoanServiceImp implements LoanService{
     @Override
     public List<Loan> getAllLoan(int page, int size) throws NoDataException {
        try {
-            List<Loan> loans = loanRepository.findAll(Sort.descending("createdDateTime")).page(page, size).list();
+            List<Loan> loans = loanRepository.findAll(Sort.descending("createdAt")).page(page, size).list();
             if (loans != null) {
                 return loans;
             }
             else{
-                throw new NoDataException(ErrorCodes.PAGE_NOT_FOUND);
+                throw new NoDataException(ErrorCodes.LOANS_NOT_FOUND);
            }
         }catch (Exception exception){
-           throw new SQLCustomExceptions("No data found ");
+           throw new SQLCustomExceptions(ErrorCodes.CONNECTION_ISSUE);
        }
     }
 
