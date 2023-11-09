@@ -35,4 +35,4 @@ ports:
     protocol: TCP
     targetPort: 8081
 selector:
-  app: customer-service-app
+  app: loan-service-app
