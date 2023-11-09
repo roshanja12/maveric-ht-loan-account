@@ -105,8 +105,9 @@ public class LoanResource {
             @APIResponse(responseCode = "404", description = "Resource Not found"),
             @APIResponse(responseCode = "500", description = "Internal Server error")
     })
-    public Response  status(@PathParam("loanId") Long loanId, LoanStatus status, UriInfo uriInfo)throws LoanIdNotFoundException {
-        Loan resultStatus = loanService.status(loanId,status);
+    public Response  status(@PathParam("loanId") Long loanId,@QueryParam("status") String status, UriInfo uriInfo)throws LoanIdNotFoundException {
+        LoanStatus statusEnum = LoanStatus.valueOf(status);
+        Loan resultStatus = loanService.status(loanId,statusEnum);
         ResponseDto responseSucess = response.successResponseGenerator("Status has been updated",resultStatus,uriInfo);
         return Response.status(Response.Status.OK)
                 .entity(responseSucess)

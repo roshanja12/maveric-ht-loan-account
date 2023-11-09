@@ -65,7 +65,7 @@ public class LoanServiceImp implements LoanService{
                 return loans;
             }
             else{
-                throw new NoDataException(ErrorCodes.CONNECTION_ISSUE);
+                throw new NoDataException(ErrorCodes.PAGE_NOT_FOUND);
            }
         }catch (Exception exception){
            throw new SQLCustomExceptions("No data found ");
@@ -85,7 +85,7 @@ public class LoanServiceImp implements LoanService{
                 throw new LoanIdNotFoundException(ErrorCodes.PAYMENT_HISTORY_NOT_FOUND);
             }
         } catch (Exception exception) {
-            throw new SQLCustomExceptions(ErrorCodes.CONNECTION_ISSUE);
+            throw new SQLCustomExceptions("No data found ");
         }
     }
 

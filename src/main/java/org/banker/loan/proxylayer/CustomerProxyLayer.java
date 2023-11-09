@@ -18,7 +18,7 @@ public interface CustomerProxyLayer {
     @ClientExceptionMapper
     static RuntimeException toException(Response response) {
         if (response.getStatus() == 500) {
-            return new ServiceException(ErrorCodes.CONNECTION_ISSUE);
+            return new ServiceException(ErrorCodes.SERVICE_CONNECTION_ISSUE+ " in Customer Service");
         }
         if (response.getStatus() == 404) {
             return new ServiceException(ErrorCodes.NO_CUSTOMER_FOUND);

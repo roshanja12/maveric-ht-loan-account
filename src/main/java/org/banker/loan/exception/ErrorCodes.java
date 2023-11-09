@@ -11,6 +11,7 @@ public final class ErrorCodes {
 
 	public static final String	CONNECTION_ISSUE ="Server Connection Issue ##500";
 	public static final String PAGE_NOT_FOUND ="Page not found";
+	public static final String SERVICE_CONNECTION_ISSUE ="Server Connection Issue";
 
 	public static final String PAYMENT_HISTORY_NOT_FOUND ="Payment history not found##404";
 
