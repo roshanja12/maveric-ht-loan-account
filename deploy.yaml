@@ -1,0 +1,38 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: loan-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: loan-service-app
+  template:
+    metadata:
+      labels:
+        app: loan-service-app
+    spec:
+      containers:
+        - name: loan-service
+          image: loan-service-image:latest
+          ports:
+            - name: http
+              containerPort: 8081
+              protocol: TCP
+          resources:
+            requests:
+              memory: "100Mi"
+              cpu: "10m"
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: loan-service
+spec:
+ports:
+  - name: http-8081
+    port: 8081
+    protocol: TCP
+    targetPort: 8081
+selector:
+  app: loan-service-app
