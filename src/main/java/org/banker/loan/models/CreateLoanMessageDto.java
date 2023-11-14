@@ -16,4 +16,6 @@ public class CreateLoanMessageDto implements Serializable  {
     private Action type;
     private Instant createdAt;
     private BigDecimal amount;
+    private Integer month;
+    private Integer year;
 }

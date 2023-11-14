@@ -13,6 +13,8 @@ import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 public class MessagingService {
 
@@ -39,7 +41,12 @@ public class MessagingService {
             messageDto.setType(Action.CREATE);
             messageDto.setCustomerId(responseDetails.getCustomerId().intValue());
             messageDto.setLoanStatus(LoanStatus.APPLIED);
+            LocalDateTime createdAt = responseDetails.getCreatedAt();
+            ZoneId zoneId = ZoneId.of("UTC");
+            Instant instant = createdAt.atZone(zoneId).toInstant();
             messageDto.setCreatedAt(Instant.now());
+            messageDto.setMonth(instant.atZone(zoneId).getMonth().getValue());
+            messageDto.setYear(instant.atZone(zoneId).getYear());
             return messageDto;
 
     }

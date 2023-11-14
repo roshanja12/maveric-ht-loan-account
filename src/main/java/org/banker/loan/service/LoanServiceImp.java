@@ -24,10 +24,7 @@ import org.jboss.logging.Logger;
 import org.jboss.resteasy.reactive.multipart.FileUpload;
 import org.modelmapper.ModelMapper;
 
-
 import java.math.BigDecimal;
-
-
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Comparator;
@@ -114,10 +111,12 @@ public class LoanServiceImp implements LoanService{
             ModelMapper modelMapper = new ModelMapper();
             Loan loanMapper = modelMapper.map(dto, Loan.class);
             if (isActiveSavingAccount(dto.getSavingsAccount()) && isActiveCustomer(dto.getCustomerId(), loanMapper)) {
-                dto.setStatus(LoanStatus.APPROVED);
+                dto.setStatus(LoanStatus.APPLIED);
                 loanMapper.setStatus(dto.getStatus());
-                loanMapper.setCreatedAt(LocalDateTime.now());
-                loanMapper.setLastUpdateAt(LocalDateTime.now());
+                LocalDateTime createdAt=LocalDateTime.now();
+                loanMapper.setCreatedAt(createdAt);
+                loanMapper.setLastUpdateAt(createdAt);
+                dto.setCreatedAt(createdAt);
                 LoanSupportingDocument supDoc = commonUtils.savingLoanSupportingDocmentDetails(supportFile);
                 supDoc.setUploadedDateTime(loanMapper.getCreatedAt());
                 loanMapper.setLoanSupportingDocument(supDoc);

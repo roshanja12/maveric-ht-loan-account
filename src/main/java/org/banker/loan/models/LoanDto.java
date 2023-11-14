@@ -11,6 +11,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 import java.io.File;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Data
 @Schema(description = "Data for creating Loan account")
@@ -36,6 +37,8 @@ public class LoanDto {
     @Schema(required = true,type = SchemaType.NUMBER)
     @Min(value = 2,message ="Greater than 2 months" )
     private int emi;
+
+    private LocalDateTime createdAt;
 
     private LoanStatus status;
 
