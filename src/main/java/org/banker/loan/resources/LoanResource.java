@@ -60,7 +60,7 @@ public class LoanResource {
             @APIResponse(responseCode = "204", description = "No Content")
     })
     public Response createLoan(@RestForm("supportingDoc") FileUpload file,
-                               @RestForm @PartType(MediaType.APPLICATION_JSON) LoanDto loanDto,
+                               @Valid @RestForm @PartType(MediaType.APPLICATION_JSON)  LoanDto loanDto,
                                UriInfo uriInfo) {
         LoanDto responseDetails=  loanService.createLoanService(file,loanDto);
         ResponseDto responseSuccess= response.successResponseGenerator("Customer Loan Created",responseDetails,uriInfo);
