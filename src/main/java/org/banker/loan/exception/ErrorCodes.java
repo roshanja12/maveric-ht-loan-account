@@ -19,6 +19,9 @@ public final class ErrorCodes {
 
 	public static final String NO_SAVINGS_ACCOUNT_FOUND= "No Savings account##404";
 
+	public static final String Insufficient_SAVINGS_AMMOUNT= "Insufficient funds in savings account##400";
+
+
 
 
 }

@@ -15,7 +15,7 @@ import java.util.List;
 public interface LoanService {
    List<Loan> getAllLoan(int page,int size) throws NoDataException;
    List<LoanPaymentHistory> viewLoanById(Long id, int pageIndex, int pageSize) throws LoanIdNotFoundException;
-   Loan status(Long id,LoanStatus status) throws LoanIdNotFoundException;
+   String status(Long id,String status) throws LoanIdNotFoundException;
    LoanDto createLoanService(FileUpload supportFile, LoanDto dto);
    public List<Loan> getAllData(@QueryParam("searchBy") String name, @QueryParam("page") int page, @QueryParam("size") int size);
    public String statusUpdate(Long loanId, String status);

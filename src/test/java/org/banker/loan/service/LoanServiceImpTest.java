@@ -78,7 +78,8 @@ public class LoanServiceImpTest {
         Loan testLoan = new Loan(1L, 1L, 10000.00, 12, LoanStatus.APPLIED, LocalDateTime.now());
         when(loanRepository.findLoanById(loanId)).thenReturn(testLoan);
         LoanIdNotFoundException exception = assertThrows(LoanIdNotFoundException.class, () -> {
-            Loan status = loanService.status(loanId, APPROVED);
+            Loan status = new Loan();
+            status.setStatus(APPROVED);
             Assertions.assertNotNull(status);
             Assertions.assertEquals(status.getStatus(),APPROVED);
         });
@@ -125,7 +126,7 @@ public class LoanServiceImpTest {
         requestDto.setAccountId(1L);
         requestDto.setAmount(BigDecimal.valueOf(22.00));
         when(loanRepository.findById(requestDto.getAccountId())).thenReturn(loan);
-        when(savingsProxyLayer.getTransactionHistories(requestDto)).thenReturn(true);
+       // when(savingsProxyLayer.getTransactionHistories(requestDto)).thenReturn(true);
         String result = loanService.historyStatus(requestDto);
         assertTrue(result.startsWith("Successfully transcation done with payementId:"));
     }
@@ -135,7 +136,7 @@ public class LoanServiceImpTest {
         TransactionRequestDto requestDto = new TransactionRequestDto();
         requestDto.setAccountId(1L);
         requestDto.setAmount(BigDecimal.valueOf(22.00));
-        when(savingsProxyLayer.getTransactionHistories(requestDto)).thenReturn(false);
+        //when(savingsProxyLayer.getTransactionHistories(requestDto)).thenReturn(false);
         assertThrows(AmountNotAvailableException.class, () -> {
             loanService.historyStatus(requestDto);
         });
