@@ -88,18 +88,23 @@ public class LoanServiceImp implements LoanService{
 
     @Override
     @Transactional
-    public Loan status(Long id,LoanStatus status) throws LoanIdNotFoundException {
+    public String status(Long id,String status)  {
         try {
             Loan loanId = loanRepository.findLoanById(id);
             if (loanId.getStatus() == LoanStatus.APPLIED) {
-                loanId.setStatus(status);
-                loanRepository.persist(loanId);
-                return loanId;
+                loanRepository.updateLoanByIdAndStatus(id,status);
+                log.info("status from "+loanId.getStatus()+"to "+status);
+                return "status from "+loanId.getStatus()+"to "+status;
+            } else if ((loanId.getStatus() == LoanStatus.APPROVED)&& !status.equalsIgnoreCase("APPLIED")) {
+                loanRepository.updateLoanByIdAndStatus(id,status);
+                log.info("status from "+loanId.getStatus()+" to "+status);
+                return "status from "+loanId.getStatus()+" to "+status;
             } else {
-                throw new LoanIdNotFoundException(ErrorCodes.PAGE_NOT_FOUND);
+                log.warn("Can not update status from "+loanId.getStatus()+"to "+status);
+                throw new ServiceException("Can not update status from "+loanId.getStatus()+" to "+status);
             }
-        }catch (Exception exception){
-            throw new LoanIdNotFoundException("Data not found in for the Id");
+        }catch (PersistenceException exception){
+            throw new SQLCustomExceptions("Data not found in for the Id");
         }
     }
 
@@ -187,9 +192,11 @@ public class LoanServiceImp implements LoanService{
 
     @Override
     public String historyStatus(TransactionRequestDto transactionRequestDto) {
-     Loan loan=   loanRepository.findById(transactionRequestDto.getAccountId());
- Boolean value= savingsProxyLayer.getTransactionHistories(transactionRequestDto);
-    if(value){
+     Loan loan=loanRepository.findById(transactionRequestDto.getAccountId());
+     Response restResponse= savingsProxyLayer.getTransactionHistories(transactionRequestDto);
+     RestClientResponse response= restResponse.readEntity(RestClientResponse.class);
+        response.getStatus().equals("success");
+        if(response.getStatus().equals("success")){
         LoanPaymentHistory loanPaymentHistory= new LoanPaymentHistory();
             loanPaymentHistory.setLoanId(loan);
             loanPaymentHistory.setPaymentStatus(LoanPaymentStatus.RECEIVED);

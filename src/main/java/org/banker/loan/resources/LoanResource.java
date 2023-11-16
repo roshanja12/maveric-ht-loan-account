@@ -112,7 +112,8 @@ public class LoanResource {
     })
     public Response  status(@PathParam("loanId") Long loanId,@QueryParam("status") String status, UriInfo uriInfo)throws LoanIdNotFoundException {
         LoanStatus statusEnum = LoanStatus.valueOf(status);
-        Loan resultStatus = loanService.status(loanId,statusEnum);
+        Loan resultStatus = null;
+        //loanService.status(loanId,statusEnum.toString());
         ResponseDto responseSucess = response.successResponseGenerator("Status has been updated",resultStatus,uriInfo);
         return Response.status(Response.Status.OK)
                 .entity(responseSucess)
@@ -146,7 +147,7 @@ public class LoanResource {
             @APIResponse(responseCode = "500", description = "Internal Server Error")
     })
     public ResponseDto statusUpdate(@Valid @PathParam("loanId") Long loanId, @PathParam("status") String status) {
-        String message=loanService.statusUpdate(loanId, status);
+        String message=loanService.status(loanId, status);
         return response.successResponseGenerator("Updated status in db",null,uriInfo);
     }
 

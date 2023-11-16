@@ -23,7 +23,7 @@ public class ServiceExceptionMapper implements ExceptionMapper<ServiceException>
     public Response toResponse(ServiceException ex) {
         ErrorDto errors = new ErrorDto();
         String messgaeCode = ex.getMessage();
-        if (messgaeCode.contains("#")) {
+        if (messgaeCode.contains("##")) {
             errors.setErrorMessgae(messgaeCode.split("##")[0]);
             errors.setErrorCode(messgaeCode.split("##")[1]);
             log.error("Error|"+ex.getStackTrace());

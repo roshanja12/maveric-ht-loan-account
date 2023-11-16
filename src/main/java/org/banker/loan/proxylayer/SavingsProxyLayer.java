@@ -12,8 +12,8 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 public interface SavingsProxyLayer {
 
     @PUT
-    @Path("/api/v1/accounts/saving/deposits")
- public Boolean getTransactionHistories(TransactionRequestDto transactionRequestDto);
+    @Path("/api/v1/accounts/saving/withdraws")
+ public Response getTransactionHistories(TransactionRequestDto transactionRequestDto);
 
     @ClientExceptionMapper
     static RuntimeException toException(Response response) {
@@ -24,7 +24,7 @@ public interface SavingsProxyLayer {
             return new ServiceException(ErrorCodes.NO_SAVINGS_ACCOUNT_FOUND);
         }
         if (response.getStatus() == 400) {
-            return new ServiceException(ErrorCodes.NO_SAVINGS_ACCOUNT_FOUND);
+            return new ServiceException(ErrorCodes.Insufficient_SAVINGS_AMMOUNT);
         }
         return null;
     }
