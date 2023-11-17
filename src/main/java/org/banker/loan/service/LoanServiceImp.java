@@ -62,9 +62,11 @@ public class LoanServiceImp implements LoanService{
                 return loans;
             }
             else{
+                log.error(ErrorCodes.LOANS_NOT_FOUND);
                 throw new NoDataException(ErrorCodes.LOANS_NOT_FOUND);
            }
-        }catch (Exception exception){
+        }catch (PersistenceException exception){
+           log.error(exception.getMessage());
            throw new SQLCustomExceptions(ErrorCodes.CONNECTION_ISSUE);
        }
     }
@@ -79,9 +81,11 @@ public class LoanServiceImp implements LoanService{
                 history.sort(Collections.reverseOrder(Comparator.comparing(LoanPaymentHistory::getPaidAt)));
                 return history;
             } else {
+                log.error(ErrorCodes.PAYMENT_HISTORY_NOT_FOUND);
                 throw new LoanIdNotFoundException(ErrorCodes.PAYMENT_HISTORY_NOT_FOUND);
             }
-        } catch (Exception exception) {
+        } catch (PersistenceException exception) {
+            log.error(exception.getMessage());
             throw new SQLCustomExceptions("No data found ");
         }
     }
@@ -104,6 +108,7 @@ public class LoanServiceImp implements LoanService{
                 throw new ServiceException("Can not update status from "+loanId.getStatus()+" to "+status);
             }
         }catch (PersistenceException exception){
+            log.error(exception.getMessage());
             throw new SQLCustomExceptions("Data not found in for the Id");
         }
     }
@@ -132,7 +137,7 @@ public class LoanServiceImp implements LoanService{
             }
             return new LoanDto();
         }catch (PersistenceException e){
-            log.error("Error: ",e.getStackTrace());
+            log.error("Error: "+e.getStackTrace()[0]);
             throw new SQLCustomExceptions(ErrorCodes.CONNECTION_ISSUE);
         }
     }
@@ -174,6 +179,7 @@ public class LoanServiceImp implements LoanService{
             return  list;
         }
         else{
+            log.error("Data not found in DB");
             throw new LoanException("Data not found in DB");
         }
     }
@@ -186,50 +192,55 @@ public class LoanServiceImp implements LoanService{
             return "Updated status in DB";
         }
         else{
+            log.error("User not in database");
             throw new LoanException("User not in database");
         }
     }
 
     @Override
     public String historyStatus(TransactionRequestDto transactionRequestDto) {
-     Loan loan=loanRepository.findById(transactionRequestDto.getAccountId());
-     Response restResponse= savingsProxyLayer.getTransactionHistories(transactionRequestDto);
-     RestClientResponse response= restResponse.readEntity(RestClientResponse.class);
-        response.getStatus().equals("success");
-        if(response.getStatus().equals("success")){
-        LoanPaymentHistory loanPaymentHistory= new LoanPaymentHistory();
-            loanPaymentHistory.setLoanId(loan);
-            loanPaymentHistory.setPaymentStatus(LoanPaymentStatus.RECEIVED);
-            loanPaymentHistory.setDescription("Branch Bangalore");
-            loanPaymentHistory.setAmountPaid(transactionRequestDto.getAmount());
-            loanPaymentHistory.setBalance(amountDetect(loan,transactionRequestDto));
-            loanPaymentHistory.setPaidAt(LocalDateTime.now());
-            historyRepository.persist(loanPaymentHistory);
-            return "Successfully transcation done with payementId:"+loanPaymentHistory.getPaymentId();
-        }
-      else{
-          throw new AmountNotAvailableException("Amount is not available");
-        }
+     Loan loan=loanRepository.findById(transactionRequestDto.getLoanId());
+     if(loan!=null) {
+         Response restResponse = savingsProxyLayer.getTransactionHistories(transactionRequestDto);
+         RestClientResponse response = restResponse.readEntity(RestClientResponse.class);
+         response.getStatus().equals("success");
+         if (response.getStatus().equals("success")) {
+             LoanPaymentHistory loanPaymentHistory = new LoanPaymentHistory();
+             loanPaymentHistory.setLoanId(loan);
+             loanPaymentHistory.setPaymentStatus(LoanPaymentStatus.RECEIVED);
+             loanPaymentHistory.setDescription("Branch Bangalore");
+             loanPaymentHistory.setAmountPaid(transactionRequestDto.getAmount());
+             loanPaymentHistory.setBalance(amountDetect(loan, transactionRequestDto));
+             loanPaymentHistory.setPaidAt(LocalDateTime.now());
+             historyRepository.persist(loanPaymentHistory);
+             return "Successfully transcation done with payementId:" + loanPaymentHistory.getPaymentId();
+         } else {
+             log.error("Error| Amount is not available");
+             throw new AmountNotAvailableException("Amount is not available");
+         }
+     }else {
+         log.error(ErrorCodes.LOANS_NOT_FOUND +" for "+transactionRequestDto.getLoanId());
+         throw new ServiceException(ErrorCodes.LOANS_NOT_FOUND);
+     }
     }
 
     public BigDecimal amountDetect(Loan loan,TransactionRequestDto transactionRequestDto){
         BigDecimal result=null;
-Loan loan1=loanRepository.findById(loan.getLoanId());
-if(loan1!=null){
-   if(loan1.getLoanAmount().compareTo(BigDecimal.ZERO) > 0 && loan1.getLoanAmount().compareTo(transactionRequestDto.getAmount())> 0 ){
-       result= loan1.getLoanAmount().subtract(transactionRequestDto.getAmount());
-       loan1.setLoanAmount(result);
-       loanRepository.persist(loan1);
-       return result;
-   }
-   else{
-       throw new AmountNotAvailableException("Not available amount");
-   }
-
-}
-else{
-    throw new AmountNotAvailableException("Not available in database");
-}
+    Loan loan1=loanRepository.findById(loan.getLoanId());
+    if(loan1!=null){
+        if(loan1.getLoanAmount().compareTo(BigDecimal.ZERO) > 0 && loan1.getLoanAmount().compareTo(transactionRequestDto.getAmount())> 0 ){
+            result= loan1.getLoanAmount().subtract(transactionRequestDto.getAmount());
+            loan1.setLoanAmount(result);
+            loanRepository.persist(loan1);
+            return result;
+        }else{
+            log.error("Not available amount");
+            throw new AmountNotAvailableException("Not available amount");
+        }
+    }else{
+        log.error("Not available amount");
+        throw new AmountNotAvailableException("Not available in database");
+    }
     }
 
 }

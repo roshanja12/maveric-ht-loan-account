@@ -18,4 +18,8 @@ public class TransactionRequestDto {
     @NotNull(message = "account id cannot be null")
     @Positive
     private Long accountId;
+
+    @NotNull(message = "amount cannot be Blank")
+    private Long loanId;
+
 }

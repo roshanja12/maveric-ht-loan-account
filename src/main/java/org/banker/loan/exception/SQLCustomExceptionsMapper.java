@@ -22,13 +22,13 @@ public class SQLCustomExceptionsMapper implements ExceptionMapper<SQLCustomExcep
         if (messageCode.contains("#")) {
             errors.setErrorMessgae(messageCode.split("##")[0]);
             errors.setErrorCode(messageCode.split("##")[1]);
-            log.error("Error|"+ex.getStackTrace());
+            log.error("Error|"+ex.getMessage());
             ResponseDto responseDto= response.errorResponseGenerator(Integer.parseInt(errors.getErrorCode()),errors.getErrorMessgae(),errors,null);
             return Response.status(Integer.parseInt(errors.getErrorCode())).entity(responseDto).build();
         } else {
             errors.setErrorMessgae(messageCode);
             errors.setErrorCode("500");
-            log.error("Error|"+ex.getStackTrace());
+            log.error("Error|"+ex.getMessage());
             ResponseDto responseDto= response.errorResponseGenerator(Integer.parseInt(errors.getErrorCode()),errors.getErrorMessgae(),errors,null);
             return Response.status(Integer.parseInt(errors.getErrorCode())).entity(responseDto).build();
         }
