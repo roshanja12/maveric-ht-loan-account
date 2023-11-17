@@ -201,6 +201,10 @@ public class LoanServiceImp implements LoanService{
     public String historyStatus(TransactionRequestDto transactionRequestDto) {
      Loan loan=loanRepository.findById(transactionRequestDto.getLoanId());
      if(loan!=null) {
+         if (!loan.getStatus().equals(LoanStatus.APPROVED)){
+             log.error("\"Cannot do transaction with \"+loan.getStatus()+\" status\"");
+             throw new ServiceException("Cannot do transaction with "+loan.getStatus()+" status");
+         }
          Response restResponse = savingsProxyLayer.getTransactionHistories(transactionRequestDto);
          RestClientResponse response = restResponse.readEntity(RestClientResponse.class);
          response.getStatus().equals("success");
