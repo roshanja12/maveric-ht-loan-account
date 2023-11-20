@@ -26,9 +26,7 @@ import org.modelmapper.ModelMapper;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 
 @ApplicationScoped
@@ -162,12 +160,18 @@ public class LoanServiceImp implements LoanService{
         log.info("Validating the savings account for Creating loan called");
         ModelMapper modelMapper = new ModelMapper();
         Response restResponse = accountProxyLayer.getSavingAccountDetailBasedOnAccountId(savingsAccountId);
-        RestClientResponse response= restResponse.readEntity(RestClientResponse.class);
-        Account account= modelMapper.map(response.getData(),Account.class);
-        if (account.getStatus().equals("ACTIVE"))
-            return true;
-        log.warn("Inactive savings account for Creating loan called|"+savingsAccountId);
-        throw new ServiceException(ErrorCodes.INACTIVE_SAVINGS_ACCOUNT);
+        RestClientListOfResponse response= restResponse.readEntity(RestClientListOfResponse.class);
+        Object[] list = response.getData();
+        if(list.length>0) {
+            Account account = modelMapper.map(list[0], Account.class);
+            if (account.getStatus().equals("ACTIVE"))
+                return true;
+            log.warn("Inactive savings account for Creating loan called|" + savingsAccountId);
+            throw new ServiceException(ErrorCodes.INACTIVE_SAVINGS_ACCOUNT);
+        }else {
+            log.warn("No active savings account found|" + savingsAccountId);
+            throw new ServiceException(ErrorCodes.NO_SAVINGS_ACCOUNT_FOUND);
+        }
     }
 
     @Override
